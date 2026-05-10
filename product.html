@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Detail — SpinCare.pk</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="logo">
+      <span class="logo-icon">⬡</span>
+      <span class="logo-text">SpinCare.pk</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html#products">Shop</a></li>
+      <li><a href="index.html#about">About</a></li>
+      <li><a href="index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="cart-btn" onclick="openCart()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        <span class="cart-count" id="cartCount">0</span>
+      </button>
+      <a href="dashboard.html" class="dashboard-btn">Dashboard</a>
+    </div>
+  </div>
+</nav>
+
+<div class="product-detail-page" id="productDetailPage">
+  <!-- Injected by JS -->
+</div>
+
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="cart-header">
+    <h3>Your Cart</h3>
+    <button onclick="closeCart()" class="cart-close">✕</button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <div class="cart-empty">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      <p>Your cart is empty</p>
+    </div>
+  </div>
+  <div class="cart-footer" id="cartFooter" style="display:none">
+    <div class="cart-total">
+      <span>Total</span>
+      <strong id="cartTotal">Rs. 0</strong>
+    </div>
+    <button class="btn-primary full-width" onclick="checkoutFromCart()">Proceed to Checkout</button>
+  </div>
+</div>
+
+<script src="images.js"></script>
+<script src="app.js"></script>
+<script>
+  // Load product from URL param
+  window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const id = parseInt(params.get('id'));
+    const product = PRODUCTS.find(p => p.id === id);
+    if (!product) { document.getElementById('productDetailPage').innerHTML = '<div class="not-found"><h2>Product not found.</h2><a href="index.html" class="btn-primary">Go Home</a></div>'; return; }
+
+    document.title = product.name + ' — SpinCare';
+
+    const allImages = [product.image, ...(product.detailImages || [])];
+    document.getElementById('productDetailPage').innerHTML = `
+      <div class="detail-breadcrumb"><a href="index.html">Home</a> / <a href="index.html#products">Shop</a> / <span>${product.name}</span></div>
+      <div class="detail-container">
+        <div class="detail-gallery">
+          <div class="detail-main-img">
+            <img id="mainProductImg" src="${product.image}" alt="${product.name}" />
+          </div>
+          <div class="detail-thumbs">
+            ${allImages.map((src, i) => `<div class="detail-thumb ${i===0?'active':''}" onclick="switchImage('${src}', this)">
+              <img src="${src}" alt="${product.name} view ${i+1}" />
+            </div>`).join('')}
+          </div>
+        </div>
+        <div class="detail-info">
+          <div class="detail-tags">
+            <span class="product-tag" style="background:${product.color}20; color:${product.color}">${product.tag}</span>
+            ${product.badge ? `<span class="badge-hot">${product.badge}</span>` : ''}
+          </div>
+          <h1 class="detail-title">${product.name}</h1>
+          <div class="detail-rating">
+            ${'★'.repeat(5)} <span>(${product.reviews} reviews)</span>
+          </div>
+          <div class="detail-price">
+            <strong>Rs. ${product.price.toLocaleString()}</strong>
+            ${product.oldPrice ? `<s>Rs. ${product.oldPrice.toLocaleString()}</s>` : ''}
+          </div>
+          <p class="detail-desc">${product.description}</p>
+          <div class="detail-features">
+            <h4>Key Features</h4>
+            <ul>${product.features.map(f => `<li>✓ ${f}</li>`).join('')}</ul>
+          </div>
+          <div class="detail-sizes">
+            <h4>Select Size</h4>
+            <div class="size-options">
+              ${['S','M','L','XL','XXL'].map(s => `<button class="size-btn" onclick="selectSize(this,'${s}')">${s}</button>`).join('')}
+            </div>
+          </div>
+          <div class="detail-qty">
+            <h4>Quantity</h4>
+            <div class="qty-control">
+              <button onclick="changeQty(-1)">−</button>
+              <span id="detailQty">1</span>
+              <button onclick="changeQty(1)">+</button>
+            </div>
+          </div>
+          <div class="detail-actions">
+            <button class="btn-primary" onclick="buyNowDetail(${product.id})">Buy Now</button>
+            <button class="btn-outline" onclick="addToCartDetail(${product.id})">Add to Cart</button>
+          </div>
+          <div class="detail-meta">
+            <span>🚚 Free delivery on orders over Rs. 2,000</span>
+            <span>↩️ 30-day hassle-free returns</span>
+            <span>🏅 Authentic SpinCare product</span>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  function switchImage(src, thumbEl) {
+    document.getElementById('mainProductImg').src = src;
+    document.querySelectorAll('.detail-thumb').forEach(t => t.classList.remove('active'));
+    thumbEl.classList.add('active');
+  }
+
+  let detailQty = 1;
+  let selectedSize = 'M';
+
+  function selectSize(btn, s) {
+    document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedSize = s;
+  }
+
+  function changeQty(d) {
+    detailQty = Math.max(1, detailQty + d);
+    document.getElementById('detailQty').textContent = detailQty;
+  }
+
+  function buyNowDetail(id) {
+    const product = PRODUCTS.find(p => p.id === id);
+    const buyItems = [{ ...product, qty: detailQty, size: selectedSize }];
+    localStorage.setItem('buyNowItems', JSON.stringify(buyItems));
+    window.location.href = 'checkout.html?mode=buynow';
+  }
+
+  function addToCartDetail(id) {
+    const product = PRODUCTS.find(p => p.id === id);
+    addToCart({ ...product, size: selectedSize }, detailQty);
+    showToast(`${product.name} added to cart!`);
+    openCart();
+  }
+</script>
+</body>
+</html>

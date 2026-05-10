@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SpinCare.pk — Premium Posture Belts</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="logo">
+      <span class="logo-icon">⬡</span>
+      <span class="logo-text">SpinCare.pk</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#products">Shop</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="cart-btn" onclick="openCart()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        <span class="cart-count" id="cartCount">0</span>
+      </button>
+      <a href="dashboard.html" class="dashboard-btn">Dashboard</a>
+      <button class="menu-toggle" id="menuToggle" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg">
+    <div class="hero-grain"></div>
+    <div class="hero-gradient"></div>
+  </div>
+  <div class="hero-content">
+    <span class="hero-label">Science-Backed Posture Support</span>
+    <h1 class="hero-title">Stand Tall.<br/><em>Live Better.</em></h1>
+    <p class="hero-sub">Premium posture correction belts engineered for all-day comfort, clinically designed to realign your spine and eliminate chronic back pain.</p>
+    <div class="hero-actions">
+      <a href="#products" class="btn-primary">Shop Collection</a>
+      <a href="#about" class="btn-ghost">Learn More</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><span>12K+</span><p>Happy Customers</p></div>
+      <div class="stat"><span>4.9★</span><p>Average Rating</p></div>
+      <div class="stat"><span>30 Days</span><p>Free Returns</p></div>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="hero-img-wrap">
+      <div class="hero-img-placeholder">
+        <img id="heroImg" alt="SpinCare PosturePro Elite" style="width:100%;height:100%;object-fit:cover;border-radius:20px;" />
+      </div>
+    </div>
+    <div class="floating-badge badge-1">✓ Doctor Recommended</div>
+    <div class="floating-badge badge-2">🇵🇰 Ships Across Pakistan</div>
+  </div>
+</section>
+
+<!-- TRUST BAR -->
+<div class="trust-bar">
+  <div class="trust-items">
+    <div class="trust-item"><span>🚚</span> Free Delivery Over Rs. 2,000</div>
+    <div class="trust-item"><span>🔒</span> Secure Checkout</div>
+    <div class="trust-item"><span>↩️</span> 30-Day Returns</div>
+    <div class="trust-item"><span>🏅</span> Premium Quality Guaranteed</div>
+  </div>
+</div>
+
+<!-- PRODUCTS -->
+<section class="products-section" id="products">
+  <div class="section-header">
+    <span class="section-label">Our Collection</span>
+    <h2>Find Your Perfect Fit</h2>
+    <p>Each belt is crafted with breathable materials and medical-grade support for lasting comfort.</p>
+  </div>
+  <div class="products-grid" id="productsGrid">
+    <!-- Cards injected by JS -->
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="about-section" id="about">
+  <div class="about-content">
+    <span class="section-label">Our Story</span>
+    <h2>Built for Backs That Work Hard</h2>
+    <p>SpinCare.pk was founded by a team of orthopedic specialists and designers who believed that back support shouldn't feel like punishment. Every belt is engineered with precision-grade support zones, breathable mesh panels, and adjustable compression — so you can wear it all day, every day.</p>
+    <ul class="about-list">
+      <li>✓ Medically reviewed design</li>
+      <li>✓ Breathable, skin-safe materials</li>
+      <li>✓ Adjustable for all body types</li>
+      <li>✓ Trusted by 12,000+ customers</li>
+    </ul>
+  </div>
+  <div class="about-visual">
+    <div class="about-card-stack">
+      <div class="about-card ac1">Posture Improved<br/><strong>in 2 Weeks</strong></div>
+      <div class="about-card ac2">98% Customer<br/><strong>Satisfaction</strong></div>
+      <div class="about-card ac3">Clinically<br/><strong>Tested</strong></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact-section" id="contact">
+  <div class="contact-inner">
+    <span class="section-label">Get in Touch</span>
+    <h2>We're Here to Help</h2>
+    <p>Have questions about sizing, shipping, or anything else? Reach out — we reply within 24 hours.</p>
+    <div class="contact-links">
+      <a href="mailto:support@spincare.pk" class="contact-link">📧 ammariimalik78@gmail.com</a>
+      <a href="tel:+923001234567" class="contact-link">📞 +92 332 1723584</a>
+      <span class="contact-link">📍 Islamabad, Pakistan</span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="logo-icon">⬡</span>
+      <span class="logo-text">SpinCare.pk</span>
+      <p>Pakistan's #1 Posture Correction Store.</p>
+    </div>
+    <div class="footer-links">
+      <a href="#products">Shop</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+      <a href="dashboard.html">Admin</a>
+    </div>
+    <p class="footer-copy">© 2025 SpinCare.pk. All rights reserved.</p>
+  </div>
+</footer>
+
+<!-- CART SIDEBAR -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="cart-header">
+    <h3>Your Cart</h3>
+    <button onclick="closeCart()" class="cart-close">✕</button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <div class="cart-empty">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      <p>Your cart is empty</p>
+    </div>
+  </div>
+  <div class="cart-footer" id="cartFooter" style="display:none">
+    <div class="cart-total">
+      <span>Total</span>
+      <strong id="cartTotal">Rs. 0</strong>
+    </div>
+    <button class="btn-primary full-width" onclick="checkoutFromCart()">Proceed to Checkout</button>
+  </div>
+</div>
+
+<script src="images.js"></script>
+<script src="app.js"></script>
+<script>document.getElementById("heroImg").src=IMAGES["p1_thumb"];</script>
+</body>
+</html>

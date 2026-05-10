@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard — SpinCare.pk</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body class="dashboard-body">
+
+<!-- LOGIN GATE -->
+<div class="login-gate" id="loginGate">
+  <div class="login-box">
+    <div class="login-logo">
+      <span class="logo-icon">⬡</span>
+      <span class="logo-text">SpinCare.pk</span>
+    </div>
+    <h2>Admin Access</h2>
+    <p>This area is restricted to store owners only.</p>
+    <div class="form-group">
+      <label>Password</label>
+      <div class="pw-wrap">
+        <input type="password" id="adminPwInput" placeholder="Enter admin password" onkeypress="if(event.key==='Enter') checkLogin()" />
+        <button type="button" onclick="togglePw()" class="pw-toggle">👁</button>
+      </div>
+    </div>
+    <div class="login-error" id="loginError" style="display:none">Incorrect password. Try again.</div>
+    <button class="btn-primary full-width" onclick="checkLogin()">Login</button>
+    <a href="index.html" class="back-link" style="display:block;text-align:center;margin-top:1rem">← Back to Store</a>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard-wrap" id="dashboardWrap" style="display:none">
+  <aside class="dash-sidebar">
+    <div class="dash-brand">
+      <span class="logo-icon">⬡</span>
+      <span class="logo-text">SpinCare.pk</span>
+    </div>
+    <nav class="dash-nav">
+      <a class="dash-nav-item active" onclick="showTab('orders', this)">📦 Orders</a>
+      <a class="dash-nav-item" onclick="showTab('stats', this)">📊 Stats</a>
+      <a class="dash-nav-item" onclick="showTab('products', this)">🏷️ Products</a>
+    </nav>
+    <div class="dash-sidebar-footer">
+      <button onclick="logout()" class="logout-btn">↩ Logout</button>
+      <a href="index.html" class="logout-btn" style="margin-top:0.5rem; display:block; text-align:center;">🛍 View Store</a>
+    </div>
+  </aside>
+
+  <main class="dash-main">
+    <!-- ORDERS TAB -->
+    <div class="dash-tab" id="tab-orders">
+      <div class="dash-top-bar">
+        <div>
+          <h1>Orders</h1>
+          <p id="ordersSubtitle">All customer orders</p>
+        </div>
+        <div class="dash-actions">
+          <select id="statusFilter" onchange="renderOrders()">
+            <option value="">All Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="Confirmed">Confirmed</option>
+            <option value="Shipped">Shipped</option>
+            <option value="Delivered">Delivered</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+          <button class="btn-outline" onclick="exportCSV()">⬇ Export CSV</button>
+          <button class="btn-danger" onclick="clearOrders()">🗑 Clear All</button>
+        </div>
+      </div>
+      <div class="orders-table-wrap">
+        <table class="orders-table" id="ordersTable">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Date</th>
+              <th>Customer</th>
+              <th>Phone</th>
+              <th>City</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Payment</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="ordersBody"></tbody>
+        </table>
+        <div id="noOrders" class="no-orders" style="display:none">
+          <div class="no-orders-icon">📭</div>
+          <h3>No orders yet</h3>
+          <p>When customers place orders, they'll appear here.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS TAB -->
+    <div class="dash-tab" id="tab-stats" style="display:none">
+      <div class="dash-top-bar">
+        <div><h1>Statistics</h1><p>Overview of your store performance</p></div>
+      </div>
+      <div class="stats-grid" id="statsGrid"></div>
+      <div class="recent-section">
+        <h3>Recent Orders</h3>
+        <div id="recentOrdersList"></div>
+      </div>
+    </div>
+
+    <!-- PRODUCTS TAB -->
+    <div class="dash-tab" id="tab-products" style="display:none">
+      <div class="dash-top-bar">
+        <div><h1>Products</h1><p>Your current product catalog</p></div>
+      </div>
+      <div class="dash-products-grid" id="dashProductsGrid"></div>
+    </div>
+  </main>
+
+  <!-- ORDER DETAIL MODAL -->
+  <div class="modal-overlay" id="orderModal" style="display:none" onclick="if(event.target===this) closeOrderModal()">
+    <div class="modal-box order-modal">
+      <div class="modal-header">
+        <h3 id="modalOrderId">Order Details</h3>
+        <button onclick="closeOrderModal()" class="cart-close">✕</button>
+      </div>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+</div>
+
+<script src="images.js"></script>
+<script src="app.js"></script>
+<script>
+  const ADMIN_PASSWORD = 'alihassan';
+
+  function checkLogin() {
+    const pw = document.getElementById('adminPwInput').value;
+    if (pw === ADMIN_PASSWORD) {
+      sessionStorage.setItem('pp_admin', 'true');
+      document.getElementById('loginGate').style.display = 'none';
+      document.getElementById('dashboardWrap').style.display = 'flex';
+      initDashboard();
+    } else {
+      document.getElementById('loginError').style.display = 'block';
+      document.getElementById('adminPwInput').classList.add('error-shake');
+      setTimeout(() => document.getElementById('adminPwInput').classList.remove('error-shake'), 500);
+    }
+  }
+
+  function togglePw() {
+    const inp = document.getElementById('adminPwInput');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  }
+
+  function logout() {
+    sessionStorage.removeItem('pp_admin');
+    document.getElementById('loginGate').style.display = 'flex';
+    document.getElementById('dashboardWrap').style.display = 'none';
+    document.getElementById('adminPwInput').value = '';
+  }
+
+  function showTab(name, el) {
+    document.querySelectorAll('.dash-tab').forEach(t => t.style.display = 'none');
+    document.getElementById('tab-' + name).style.display = 'block';
+    document.querySelectorAll('.dash-nav-item').forEach(a => a.classList.remove('active'));
+    el.classList.add('active');
+    if (name === 'stats') renderStats();
+    if (name === 'products') renderDashProducts();
+  }
+
+  function getOrders() {
+    return JSON.parse(localStorage.getItem('pp_orders') || '[]');
+  }
+
+  function initDashboard() {
+    renderOrders();
+    renderStats();
+    renderDashProducts();
+  }
+
+  function renderOrders() {
+    const orders = getOrders();
+    const filter = document.getElementById('statusFilter').value;
+    const filtered = filter ? orders.filter(o => o.status === filter) : orders;
+    document.getElementById('ordersSubtitle').textContent = `${filtered.length} order${filtered.length !== 1 ? 's' : ''}`;
+
+    const tbody = document.getElementById('ordersBody');
+    if (filtered.length === 0) {
+      tbody.innerHTML = '';
+      document.getElementById('noOrders').style.display = 'flex';
+      document.getElementById('ordersTable').style.display = 'none';
+      return;
+    }
+    document.getElementById('noOrders').style.display = 'none';
+    document.getElementById('ordersTable').style.display = 'table';
+
+    tbody.innerHTML = filtered.map(order => {
+      const statusColors = { Pending: '#f59e0b', Confirmed: '#3b82f6', Shipped: '#8b5cf6', Delivered: '#10b981', Cancelled: '#ef4444' };
+      const col = statusColors[order.status] || '#6b7280';
+      const itemNames = order.items.map(i => i.name).join(', ');
+      const paymentLabels = { cod: 'Cash on Delivery', bank: 'Bank Transfer', easypaisa: 'Easypaisa/JazzCash' };
+      return `<tr onclick="openOrderModal('${order.id}')" style="cursor:pointer">
+        <td><span class="order-id-cell">${order.id}</span></td>
+        <td>${order.timestamp}</td>
+        <td>${order.customer.name}</td>
+        <td>${order.customer.phone}</td>
+        <td>${order.address.city}</td>
+        <td class="items-cell" title="${itemNames}">${itemNames.substring(0,30)}${itemNames.length > 30 ? '…' : ''}</td>
+        <td><strong>Rs. ${order.total.toLocaleString()}</strong></td>
+        <td>${paymentLabels[order.payment] || order.payment}</td>
+        <td>
+          <select class="status-select" style="--sc:${col}" onclick="event.stopPropagation()" onchange="updateStatus('${order.id}', this.value)">
+            ${['Pending','Confirmed','Shipped','Delivered','Cancelled'].map(s => `<option value="${s}" ${order.status === s ? 'selected' : ''}>${s}</option>`).join('')}
+          </select>
+        </td>
+        <td onclick="event.stopPropagation()">
+          <button class="action-btn" onclick="openOrderModal('${order.id}')">View</button>
+          <button class="action-btn danger" onclick="deleteOrder('${order.id}')">Del</button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  function updateStatus(orderId, newStatus) {
+    const orders = getOrders();
+    const o = orders.find(x => x.id === orderId);
+    if (o) { o.status = newStatus; localStorage.setItem('pp_orders', JSON.stringify(orders)); }
+  }
+
+  function deleteOrder(id) {
+    if (!confirm('Delete this order?')) return;
+    const orders = getOrders().filter(o => o.id !== id);
+    localStorage.setItem('pp_orders', JSON.stringify(orders));
+    renderOrders();
+  }
+
+  function clearOrders() {
+    if (!confirm('Clear ALL orders? This cannot be undone.')) return;
+    localStorage.removeItem('pp_orders');
+    renderOrders();
+  }
+
+  function openOrderModal(id) {
+    const order = getOrders().find(o => o.id === id);
+    if (!order) return;
+    document.getElementById('modalOrderId').textContent = `Order ${order.id}`;
+    document.getElementById('modalContent').innerHTML = `
+      <div class="modal-sections">
+        <div class="modal-section">
+          <h4>Customer</h4>
+          <p><strong>Name:</strong> ${order.customer.name}</p>
+          <p><strong>Phone:</strong> ${order.customer.phone}</p>
+          <p><strong>Email:</strong> ${order.customer.email || 'N/A'}</p>
+        </div>
+        <div class="modal-section">
+          <h4>Delivery Address</h4>
+          <p>${order.address.street}</p>
+          <p>${order.address.city}, ${order.address.province} ${order.address.postal}</p>
+          ${order.address.notes ? `<p><em>Notes: ${order.address.notes}</em></p>` : ''}
+        </div>
+        <div class="modal-section">
+          <h4>Order Items</h4>
+          ${order.items.map(item => `<div class="modal-item"><span>${item.name} (${item.size || 'M'}) × ${item.qty || 1}</span><span>Rs. ${(item.price * (item.qty||1)).toLocaleString()}</span></div>`).join('')}
+          <div class="modal-item total-line"><strong>Total</strong><strong>Rs. ${order.total.toLocaleString()}</strong></div>
+        </div>
+        <div class="modal-section">
+          <h4>Payment</h4>
+          <p>${{ cod: 'Cash on Delivery', bank: 'Bank Transfer', easypaisa: 'Easypaisa/JazzCash' }[order.payment] || order.payment}</p>
+        </div>
+      </div>
+    `;
+    document.getElementById('orderModal').style.display = 'flex';
+  }
+
+  function closeOrderModal() {
+    document.getElementById('orderModal').style.display = 'none';
+  }
+
+  function renderStats() {
+    const orders = getOrders();
+    const totalRevenue = orders.reduce((sum, o) => sum + o.total, 0);
+    const pending = orders.filter(o => o.status === 'Pending').length;
+    const delivered = orders.filter(o => o.status === 'Delivered').length;
+    const cities = [...new Set(orders.map(o => o.address.city))].length;
+
+    document.getElementById('statsGrid').innerHTML = `
+      <div class="stat-card"><div class="sc-icon" style="background:#10b98120">📦</div><div class="sc-info"><p>Total Orders</p><h2>${orders.length}</h2></div></div>
+      <div class="stat-card"><div class="sc-icon" style="background:#3b82f620">💰</div><div class="sc-info"><p>Total Revenue</p><h2>Rs. ${totalRevenue.toLocaleString()}</h2></div></div>
+      <div class="stat-card"><div class="sc-icon" style="background:#f59e0b20">⏳</div><div class="sc-info"><p>Pending Orders</p><h2>${pending}</h2></div></div>
+      <div class="stat-card"><div class="sc-icon" style="background:#8b5cf620">✅</div><div class="sc-info"><p>Delivered</p><h2>${delivered}</h2></div></div>
+      <div class="stat-card"><div class="sc-icon" style="background:#ec489920">🌍</div><div class="sc-info"><p>Cities Reached</p><h2>${cities}</h2></div></div>
+      <div class="stat-card"><div class="sc-icon" style="background:#06b6d420">📈</div><div class="sc-info"><p>Avg. Order Value</p><h2>Rs. ${orders.length ? Math.round(totalRevenue/orders.length).toLocaleString() : 0}</h2></div></div>
+    `;
+
+    const recent = orders.slice(0, 5);
+    document.getElementById('recentOrdersList').innerHTML = recent.length === 0
+      ? '<p style="color:var(--text-muted)">No recent orders.</p>'
+      : recent.map(o => `<div class="recent-order-row"><span class="ro-id">${o.id}</span><span>${o.customer.name}</span><span>${o.address.city}</span><span><strong>Rs. ${o.total.toLocaleString()}</strong></span><span class="status-pill">${o.status}</span></div>`).join('');
+  }
+
+  function renderDashProducts() {
+    document.getElementById('dashProductsGrid').innerHTML = PRODUCTS.map(p => `
+      <div class="dash-product-card">
+        <div class="dpc-color" style="background:${p.color}20; border:2px solid ${p.color}40; overflow:hidden; height:100px;">
+          <img src="${p.image}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">
+        </div>
+        <div class="dpc-info">
+          <h4>${p.name}</h4>
+          <p>${p.tag}</p>
+          <strong>Rs. ${p.price.toLocaleString()}</strong>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function exportCSV() {
+    const orders = getOrders();
+    if (orders.length === 0) { alert('No orders to export.'); return; }
+    const headers = ['Order ID','Date','Name','Phone','Email','City','Province','Items','Total','Payment','Status'];
+    const rows = orders.map(o => [
+      o.id, o.timestamp, o.customer.name, o.customer.phone, o.customer.email || '',
+      o.address.city, o.address.province,
+      o.items.map(i => i.name + ' x' + (i.qty||1)).join(' | '),
+      o.total, o.payment, o.status
+    ]);
+    const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `spincare-orders-${Date.now()}.csv`;
+    a.click();
+  }
+
+  // Auto-check session
+  window.addEventListener('DOMContentLoaded', () => {
+    if (sessionStorage.getItem('pp_admin') === 'true') {
+      document.getElementById('loginGate').style.display = 'none';
+      document.getElementById('dashboardWrap').style.display = 'flex';
+      initDashboard();
+    }
+  });
+</script>
+</body>
+</html>
